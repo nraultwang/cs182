@@ -45,6 +45,10 @@ class TwoLayerNet(object):
         # weights and biases using the keys 'W1' and 'b1' and second layer weights #
         # and biases using the keys 'W2' and 'b2'.                                 #
         ############################################################################
+        self.params['W1'] = np.random.normal(0, scale=weight_scale, size=(input_dim, hidden_dim))
+        self.params['W2'] = np.random.normal(0, scale=weight_scale, size=(hidden_dim, num_classes))
+        self.params['b1'] = 0
+        self.params['b2'] = 0
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
@@ -73,6 +77,18 @@ class TwoLayerNet(object):
         # TODO: Implement the forward pass for the two-layer net, computing the    #
         # class scores for X and storing them in the scores variable.              #
         ############################################################################
+        # print(self.params['b1'].shape, self.params['b2'].shape)
+        h1, cache1 = affine_relu_forward(
+          X,
+          self.params['W1'],
+          self.params['b1']
+        )
+        scores, cache2 = affine_relu_forward(
+          h1,
+          self.params['W2'],
+          self.params['b2']
+        )
+
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
@@ -93,11 +109,16 @@ class TwoLayerNet(object):
         # automated tests, make sure that your L2 regularization includes a factor #
         # of 0.5 to simplify the expression for the gradient.                      #
         ############################################################################
+        l2_loss = self.reg * 0.5 * (np.sum(self.params['W1']**2) + np.sum(self.params['W2']**2))
+        loss, dx = softmax_loss(scores, y)
+        dx, grads['W2'], grads['b2'] = affine_relu_backward(dx, cache2)
+        dx, grads['W1'], grads['b1'] = affine_relu_backward(dx, cache1)
+        
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
 
-        return loss, grads
+        return loss + l2_loss, grads
 
 
 class FullyConnectedNet(object):
