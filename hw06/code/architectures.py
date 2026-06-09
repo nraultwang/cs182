@@ -26,8 +26,28 @@ class BasicConvNet(nn.Module):
 class ResNet18(nn.Module):
     # Keep in mind that you will need to resize the Image to 224x224
     def __init__(self):
-        super().__init()
+        super().__init__()
         self.backbone = torchvision.models.resnet18()
+        num_ftrs = self.backbone.fc.in_features
+        self.backbone.fc = torch.nn.Linear(num_ftrs, 10)
+    def forward(self, x):
+        return self.backbone(x)
+
+class ResNet101(nn.Module):
+    # Keep in mind that you will need to resize the Image to 224x224
+    def __init__(self):
+        super().__init__()
+        self.backbone = torchvision.models.resnext101_32x8d(weights=torchvision.models.ResNeXt101_32X8D_Weights.DEFAULT)
+        num_ftrs = self.backbone.fc.in_features
+        self.backbone.fc = torch.nn.Linear(num_ftrs, 10)
+    def forward(self, x):
+        return self.backbone(x)
+
+class ResNet50(nn.Module):
+    # Keep in mind that you will need to resize the Image to 224x224
+    def __init__(self):
+        super().__init__()
+        self.backbone = torchvision.models.resnext50_32x4d(weights=True)
         num_ftrs = self.backbone.fc.in_features
         self.backbone.fc = torch.nn.Linear(num_ftrs, 10)
     def forward(self, x):
@@ -42,7 +62,10 @@ class MLP(nn.Module):
         self.out = nn.Linear(size, num_classes)
         self.relu = nn.ReLU()
     def forward(self, x):
-        x = self.fc1(x)
+        
+        x = torch.flatten(x, 1) # Flattens to [B, 3072]
+        x = self.relu(self.fc1(x))
+        
         for layer in self.hidden:
             x = layer(x)
             x = self.relu(x)
