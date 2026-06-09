@@ -3,3 +3,9 @@
 *.DS_Store
 .DS_Store
 **/.DS_Store
+**/.ipynb_checkpoints/**
+datasets
+**/*data*/**
+**/*run*/**
+**/*wandb*/**
+**/*logs*/**
